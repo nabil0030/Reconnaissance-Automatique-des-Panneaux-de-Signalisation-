@@ -1,11 +1,26 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import os
+import requests  # Pour télécharger des images depuis une URL
+import pymysql.cursors
+from werkzeug.security import check_password_hash, generate_password_hash
+
+# Connexion à la base de données MySQL
+def get_db_connection():
+    return pymysql.connect(
+        host='localhost',
+        user='root',  # Par défaut avec XAMPP
+        password='',  # Mot de passe vide par défaut
+        database='road_sign_db',
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 app = Flask(__name__)
-MODEL_PATH = "model.h5"
+app.secret_key = 'ton_clef_secrete'  # Clé secrète pour la session
+
+MODEL_PATH = "final_model.h5"
 UPLOAD_FOLDER = "static/uploads/"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -59,7 +74,15 @@ class_names = {
 model = tf.keras.models.load_model(MODEL_PATH)
 
 @app.route("/", methods=["GET"])
-def index():
+def home():
+    return render_template("home.html")
+
+@app.route("/index")
+def index_page():
+    # Ici tu peux vérifier si l'utilisateur est connecté ou pas
+    if "user_id" not in session:
+        return redirect("/login")  # redirige vers login si pas connecté
+
     return render_template("index.html")
 
 @app.route("/predict", methods=["POST"])
@@ -90,6 +113,112 @@ def predict():
         "class_name": class_names[predicted_class],
         "confidence": float(confidence)
     })
+
+@app.route("/predict_from_url", methods=["POST"])
+def predict_from_url():
+    data = request.get_json()
+    if not data or "image_url" not in data:
+        return jsonify({"error": "URL de l'image manquante"}), 400
+
+    image_url = data["image_url"]
+
+    try:
+        response = requests.get(image_url)
+        if response.status_code != 200:
+            return jsonify({"error": "Impossible de télécharger l'image"}), 400
+
+        file_path = os.path.join(UPLOAD_FOLDER, "auto_downloaded_image.jpg")
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+
+        img = Image.open(file_path).resize((128, 128))
+        img_array = np.array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        predictions = model.predict(img_array)
+        predicted_class = np.argmax(predictions, axis=1)[0]
+        confidence = predictions[0][predicted_class]
+
+        return jsonify({
+            "class_name": class_names[predicted_class],
+            "confidence": float(confidence)
+        })
+    except Exception as e:
+        return jsonify({"error": f"Erreur lors du traitement : {str(e)}"}), 500
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        try:
+            data = request.get_json(force=True, silent=True)
+        except Exception:
+            data = None
+
+        if not data:
+            data = request.form.to_dict()
+
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not all([username, email, password]):
+            return jsonify({"error": "Tous les champs sont requis"}), 400
+
+        try:
+            with get_db_connection() as connection:
+                with connection.cursor() as cursor:
+                    sql = "SELECT * FROM users WHERE username = %s OR email = %s"
+                    cursor.execute(sql, (username, email))
+                    result = cursor.fetchone()
+
+                    if result:
+                        return jsonify({"error": "Nom d'utilisateur ou email déjà utilisé"}), 400
+
+                    hashed_password = generate_password_hash(password)
+                    sql = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)"
+                    cursor.execute(sql, (username, email, hashed_password))
+                    connection.commit()
+                    return jsonify({"message": "Inscription réussie!"})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        try:
+            data = request.get_json(force=True, silent=True)
+        except Exception:
+            data = None
+
+        if not data:
+            data = request.form.to_dict()
+
+        username = data.get("username")
+        password = data.get("password")
+
+        if not all([username, password]):
+            return jsonify({"error": "Identifiants manquants"}), 400
+
+        try:
+            with get_db_connection() as connection:
+                with connection.cursor() as cursor:
+                    sql = "SELECT * FROM users WHERE username = %s"
+                    cursor.execute(sql, (username,))
+                    user = cursor.fetchone()
+
+                    if not user or not check_password_hash(user["password"], password):
+                        return jsonify({"error": "Nom d'utilisateur ou mot de passe incorrect"}), 401
+
+                    session["user_id"] = user["id"]
+                    session["username"] = user["username"]
+
+                    return jsonify({"message": "Connexion réussie", "user": user})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return render_template("login.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
