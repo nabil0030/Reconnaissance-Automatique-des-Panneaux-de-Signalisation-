@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reconnaissance de Panneaux Routiers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: white;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background-color: #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+    }
+
+    nav ul li {
+      margin-left: 30px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #ff9900;
+    }
+
+    .nav-buttons a {
+      margin-left: 15px;
+      padding: 10px 20px;
+      background-color: #ff9900;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      transition: background 0.3s;
+    }
+
+    .nav-buttons a:hover {
+      background-color: #e68a00;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 100px 40px;
+      min-height: calc(100vh - 80px);
+      gap: 50px;
+    }
+
+    .hero .content {
+      max-width: 600px;
+      animation: fadeInLeft 1s ease-in-out;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      opacity: 0.9;
+    }
+
+    .hero .image {
+      width: 50%;
+      animation: fadeInRight 1s ease-in-out;
+    }
+
+    .hero img {
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.5s;
+    }
+
+    .hero img:hover {
+      transform: scale(1.05);
+    }
+
+    .cta {
+      text-align: center;
+      padding: 60px 20px;
+      background: #f7f7f7;
+    }
+
+    .cta h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .cta a {
+      display: inline-block;
+      padding: 15px 40px;
+      background-color: #ff9900;
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .cta a:hover {
+      background-color: #e68a00;
+    }
+
+    #about, #contact {
+      text-align: center;
+      padding: 60px 20px;
+      background-color: #ffffff;
+    }
+
+    #about h2, #contact h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    #about p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    #contact form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    #contact input, #contact textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    #contact button {
+      padding: 12px;
+      background-color: #ff9900;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #contact button:hover {
+      background-color: #e68a00;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    footer img {
+      width: 100px;
+      margin-top: 10px;
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .hero .image, .hero .content {
+        width: 100%;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">Reconnaissance_AI</div>
+    <ul>
+      <li><a href="#home">Accueil</a></li>
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-buttons">
+     <a href="/login">Se connecter</a>
+    <a href="/register">S'inscrire</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="content">
+      <h1>Bienvenue sur Reconnaissance_AI</h1>
+      <p>
+        Découvrez notre technologie avancée de reconnaissance de panneaux routiers basée sur l'intelligence artificielle.
+        Profitez d'une analyse rapide, précise, et facile d'accès pour tous vos projets liés à la sécurité routière.
+      </p>
+    </div>
+    <div class="image">
+      <img src="https://roadsignsdirect.co.uk/sites/default/files/styles/1600x611/public/2019-02/uk-road-signs.jpg" alt="Image de panneaux routiers" />
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta">
+    <h2>Prêt à essayer ?</h2>
+    <p>Cliquez ci-dessous pour télécharger votre première image.</p>
+    <a href="/predict">Essayer Maintenant</a>
+  </section>
+
+  <!-- À propos -->
+  <section id="about">
+    <h2>À propos de nous</h2>
+    <p>
+      Reconnaissance_AI est une entreprise innovante spécialisée dans les technologies de reconnaissance d’images et d’intelligence artificielle.
+      Nous concevons des solutions puissantes et accessibles pour automatiser la détection de panneaux routiers,
+      en aidant les collectivités, chercheurs et entreprises à améliorer la sécurité et la fluidité du trafic.
+    </p>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>Contactez-nous</h2>
+    <form action="mailto:votreadresse@example.com" method="post" enctype="text/plain">
+      <input type="text" name="name" placeholder="Votre nom" required>
+      <input type="email" name="email" placeholder="Votre email" required>
+      <textarea name="message" rows="5" placeholder="Votre message" required></textarea>
+      <button type="submit">Envoyer</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2023 Reconnaissance_AI Reconnaissance_AI. Tous droits réservés.</p>
+    <img src="https://via.placeholder.com/100?text=Logo" alt="Logo">
+  </footer>
+
+</body>
+</html>

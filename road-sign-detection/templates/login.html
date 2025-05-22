@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion Moderne - Dark Mode</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #121212;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+
+    .login-wrapper {
+      background: #1e1e1e;
+      padding: 50px 40px;
+      border-radius: 15px;
+      width: 360px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+      border: 1px solid #333;
+      animation: slideFadeIn 0.7s ease forwards;
+    }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      font-weight: 600;
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+      letter-spacing: 1.2px;
+      text-align: center;
+      color: #cfcfcf;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.7);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #aaa;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      margin-bottom: 25px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      background: #2b2b2b;
+      color: #eee;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #666;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      background: #3a3a3a;
+      box-shadow: 0 0 10px 2px #7b5bdc;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px 0;
+      background: #7b5bdc;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(123,91,220,0.85);
+      transition: background 0.35s ease, transform 0.2s ease;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      background: #9c7aed;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(156,122,237,0.85);
+    }
+
+    #message {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      min-height: 24px;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    @media (max-width: 400px) {
+      .login-wrapper {
+        width: 100%;
+        padding: 40px 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <h2>Connexion</h2>
+    <form id="loginForm" autocomplete="off">
+      <label for="username">Nom d'utilisateur</label>
+      <input type="text" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required />
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required />
+
+      <button type="submit">Se connecter</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = form.username.value.trim();
+      const password = form.password.value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        message.style.color = '#9cf28c'; // vert clair
+        message.textContent = data.message;
+        setTimeout(() => {
+          window.location.href = '/index';
+        }, 1000);
+      } else {
+        message.style.color = '#ff6b6b'; // rouge clair
+        message.textContent = data.error || 'Erreur lors de la connexion';
+      }
+    });
+  </script>
+</body>
+</html>
