@@ -1,83 +1,269 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détection de Panneaux de Signalisation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-        }
-        form {
-            margin: 20px auto;
-            padding: 20px;
-            max-width: 400px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        input[type="file"] {
-            margin-bottom: 15px;
-            padding: 10px;
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #result {
-            margin-top: 20px;
-            padding: 20px;
-            max-width: 400px;
-            margin: 0 auto;
-            background: #e9ecef;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        #result p {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Détection de Panneaux Routiers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Container glassmorphism */
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 25px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      max-width: 850px;
+      width: 100%;
+      padding: 40px 50px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    /* Left side - texte + illustration */
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      padding-right: 20px;
+      border-right: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .left h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      line-height: 1.1;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+    .left p {
+      font-size: 1.25rem;
+      font-weight: 300;
+      color: #e0e0ffcc;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .left img {
+      max-width: 180px;
+      align-self: flex-start;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+      transform: rotate(-8deg);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .left img:hover {
+      transform: rotate(0deg) scale(1.05);
+    }
+
+    /* Right side - form */
+    .right {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 25px;
+      padding: 35px 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #222;
+      text-align: center;
+    }
+    .right h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #111;
+      letter-spacing: 0.03em;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+    }
+    .right p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    input[type="file"] {
+      padding: 14px 18px;
+      border-radius: 18px;
+      border: none;
+      font-size: 1.05rem;
+      cursor: pointer;
+      background-color: #ffffffdd;
+      transition: background-color 0.3s ease;
+    }
+    input[type="file"]:hover {
+      background-color: #f0f0f0;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      padding: 15px 0;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.6);
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      box-shadow: 0 10px 30px rgba(118, 75, 162, 0.8);
+      transform: translateY(-3px);
+    }
+
+    /* Result box */
+    .result-box {
+      margin-top: 35px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 25px 30px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      color: #222;
+      text-align: center;
+      display: none;
+    }
+    .result-box h3 {
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #5e2a8c;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+    }
+    .result-box p {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .result-box img {
+      max-width: 100%;
+      border-radius: 15px;
+      margin-top: 18px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+      filter: drop-shadow(0 0 5px #764ba2cc);
+      transition: transform 0.3s ease;
+    }
+    .result-box img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 30px 25px;
+      }
+      .left {
+        border-right: none;
+        padding-right: 0;
+        margin-bottom: 40px;
+        align-items: center;
+        text-align: center;
+      }
+      .left img {
+        transform: rotate(0);
+      }
+      .right {
+        padding: 30px 25px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Détection de Panneaux de Signalisation</h1>
-    <form id="upload-form">
-        <input type="file" id="file" name="file" accept="image/*" required>
-        <button type="submit">Télécharger et Prédire</button>
-    </form>
-    <div id="result">
-        <p>Aucun résultat pour le moment.</p>
-    </div>
-    <script>
-        document.getElementById("upload-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append("file", document.getElementById("file").files[0]);
+  <div class="container">
+    <section class="left">
+      <h1>Notre mission est de faciliter la vie de chacun.</h1>
+      <p>Commençons par la vôtre.</p>
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/1145/1145129.png"
+        alt="Illustration panneau"
+        class="illustration"
+        loading="lazy"
+      />
+    </section>
 
-            const response = await fetch("/predict", {
-                method: "POST",
-                body: formData,
-            });
+    <section class="right">
+      <h2>Détection des Panneaux Routiers</h2>
+      <p>
+        Identifiez instantanément un panneau de signalisation grâce à notre IA. Simple, rapide, et précis.
+      </p>
 
-            const result = await response.json();
-            document.getElementById("result").innerHTML = `
-                <p><strong>Panneau détecté:</strong> ${result.class_name}</p>
-                <p><strong>Confiance:</strong> ${(result.confidence * 100).toFixed(2)}%</p>
-            `;
-        });
-    </script>
+      <form id="upload-form" enctype="multipart/form-data" novalidate>
+        <input type="file" id="file-input" name="file" accept="image/*" required />
+        <button type="submit">Analyser l'image</button>
+      </form>
+
+      <div class="result-box" id="result-section" aria-live="polite">
+        <h3>Résultat</h3>
+        <p><strong>Classe prédite :</strong> <span id="class-name"></span></p>
+        <p><strong>Confiance :</strong> <span id="confidence"></span>%</p>
+        <img id="preview-image" src="#" alt="Image analysée" />
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const resultSection = document.getElementById('result-section');
+    const classNameSpan = document.getElementById('class-name');
+    const confidenceSpan = document.getElementById('confidence');
+    const previewImage = document.getElementById('preview-image');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('file-input');
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      previewImage.src = URL.createObjectURL(file);
+
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        classNameSpan.textContent = data.class_name;
+        confidenceSpan.textContent = (data.confidence * 100).toFixed(2);
+        resultSection.style.display = 'block';
+      })
+      .catch(err => {
+        alert("Une erreur est survenue : " + err);
+      });
+    });
+  </script>
 </body>
 </html>
