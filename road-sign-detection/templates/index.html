@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détection de Panneaux de Signalisation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+        }
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #result p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Détection de Panneaux de Signalisation</h1>
+    <form id="upload-form">
+        <input type="file" id="file" name="file" accept="image/*" required>
+        <button type="submit">Télécharger et Prédire</button>
+    </form>
+    <div id="result">
+        <p>Aucun résultat pour le moment.</p>
+    </div>
+    <script>
+        document.getElementById("upload-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("file", document.getElementById("file").files[0]);
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            document.getElementById("result").innerHTML = `
+                <p><strong>Panneau détecté:</strong> ${result.class_name}</p>
+                <p><strong>Confiance:</strong> ${(result.confidence * 100).toFixed(2)}%</p>
+            `;
+        });
+    </script>
+</body>
+</html>
